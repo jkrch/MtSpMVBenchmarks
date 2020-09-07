@@ -13,7 +13,7 @@ end
 # Compare the builtin serial CSC and CSR (if matrix type is 'Tranpose' and 
 # the parent is transpose of the CSC matrix) with the multithreaded and 
 # serial CSR matrix-vector product from this package
-function bench_builtin(m, n, d)
+function bench_spmv(m, n, d)
 
     # Load matrix and vectors
     println("Benchmark SpMV") 
@@ -60,7 +60,7 @@ end
 
 
 # Used for experiments with mul!
-function bench_mulexp(m, n, d)
+function bench_experimental_spmv(m, n, d)
     
     # Load matrix and vectors
     println("Benchmark SpMV (experimental)") 
