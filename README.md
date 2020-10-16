@@ -27,7 +27,17 @@ foo@bar:~$ src/nthreads_spmv julia_link m n nnzrow mkl_csr mkl_csc
 
 #### Matrix size
 
-For ease of implementation are benchmarks with varying matrix size run by shell scripts aswell.
+```console
+foo@bar:~$ src/matsize_spmv julia_link nthreads N nnzrow mkl_csr mkl_csc
+```
+| Argument      | Description                                                      |
+| :------------ | :--------------------------------------------------------------- |
+| `julia_link`: | Link to your Julia version (for usage of different build Julias) |
+| `nthreads`:   | Number of threads                                                |
+| `N`:          | Max. matrix size                                                 |
+| `nnzrow`:     | Number of approx. nonzeros per row                               |
+| `mkl_csr`:    | Boolean, add benchmarks for CSR matrix-vector product from MKL   |
+| `mkl_csc`:    | Boolean, add benchmarks for CSR matrix-vector product from MKL   |
 
 ### Iterative solvers
 
