@@ -1,0 +1,4 @@
+1  7.930 ms (83 allocations: 3.82 MiB)
+2  7.697 ms (148 allocations: 3.83 MiB)
+3  6.815 ms (203 allocations: 3.84 MiB)
+4  6.509 ms (258 allocations: 3.85 MiB)

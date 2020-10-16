@@ -1,24 +1,31 @@
-# Collection of functions providing different linear systems for iterative 
-# solver benchmarks
+# Collection of functions providing different linear systems for spmv iterative 
+# solver (and spmv) benchmarks
 # 
-# Each function returns a CSC matrix, their CSR pendant, a right-hand side 
-# vector and the solution vector
+# Each function returns a SparseMatrixCSC, the matrix as transApose, the matrix 
+# as SparseMatrixCSR, a right-hand side vector and the solution vector
 
 
-function nonsymm(n; seed=1)
-
+# Return a random CSC matrix, the matrix in Tranpose form, their CSR pendant, 
+# a random vector and the result for the matrix-vector product   
+function randlinsys(m, n, d; seed=1)
+    Random.seed!(seed)
+    A = sprand(m, n, d)
+    transA = transpose(sparse(transpose(A)))
+    x = rand(n)
+    b = zeros(eltype(A), A.m)
+    return A, transA, b, x
 end
 
 
 # Make indefinite (hard to solve) linear system
 function symmindef(n; seed=1)
     Random.seed!(seed)
-    A_csc = sprand(n, n, 3.0/n) + I
-    A_csc = (A_csc + A_csc') / 2
-    A_csr = sparsecsr(A_csc)
+    A = sprand(n, n, 3.0/n) + I
+    A = (A + A') / 2
+    transA = transpose(sparse(transpose(A)))
     x = ones(n)
-    b = A_csr * x
-    return A_csc, A_csr, b, x
+    b = A * x
+    return A, transA, b, x
 end
 
 
@@ -28,11 +35,11 @@ end
 function fdm2d(n)
     diag = -4 * ones(n)
     subdiag = ones(n-1)
-    A_csc = spdiagm(0 => diag, -1 => subdiag, 1 => subdiag)
-    A_csr = sparsecsr(A_csc)
+    A = spdiagm(0 => diag, -1 => subdiag, 1 => subdiag)
+    transA = transpose(sparse(transpose(A)))
     x = ones(n)
-    b = A_csr * x 
-    return A_csc, A_csr, b, x
+    b = A * x 
+    return A, transA, b, x
 end
 
 
@@ -45,14 +52,14 @@ function fdm3d(n; seed=1)
     ny = Int(nx)
     nz = Int(nx)
     n = nx*ny*nz
-    A_ext = ExtendableSparseMatrix(n, n)
-    fdrand!(A_ext, nx, ny, nz)
-    flush!(A_ext)
-    A_csc = A_ext.cscmatrix
-    A_csr = sparsecsr(A_csc)
+    A = ExtendableSparseMatrix(n, n)
+    fdrand!(A, nx, ny, nz)
+    flush!(A)
+    A = A.cscmatrix
+    transA = transpose(sparse(transpose(A)))
     x = ones(n)
-    b = A_csr * x
-    return A_csc, A_csr, b, x 
+    b = A * x
+    return A, transA, b, x 
 end
 
 
@@ -62,12 +69,12 @@ end
 #   - matrix bandwidth bounded by sqrt(n)
 function fem2d(n; seed=1)
     Random.seed!(seed)
-    A_ext = ExtendableSparseMatrix(n, n)
-    sprand_sdd!(A_ext)
-    flush!(A_ext)
-    A_csc = A_ext.cscmatrix
-    A_csr = sparsecsr(A_csc)
+    A = ExtendableSparseMatrix(n, n)
+    sprand_sdd!(A)
+    flush!(A)
+    A = A.cscmatrix
+    transA = transpose(sparse(transpose(A)))
     x = ones(n)
-    b = A_csr * x
-    return A_csc, A_csr, b, x
+    b = A * x
+    return A, transA, b, x
 end

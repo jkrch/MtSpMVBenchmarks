@@ -1,0 +1,33 @@
+boe__2020-10-15__17-20-55
+
+spmv, m=10000, n=10000, nnz=19998598
+
+SparseArrays.jl CSR
+nthreads  seconds
+1  0.02378652
+
+SparseArrays.jl CSC
+nthreads  seconds
+1  0.027722819
+
+MtSpMV.jl CSR
+nthreads  seconds
+1  0.029361786
+2  0.030923209
+3  0.029002895
+4  0.029235606
+
+MKLSparse.jl CSR
+nthreads  seconds
+  0.029545505
+  0.0238958085
+  0.023984782
+  0.025963116
+
+MKLSparse.jl CSC
+nthreads  seconds
+  0.0298943455
+  0.0239032405
+  0.0277340935
+  0.024562825
+

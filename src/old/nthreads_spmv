@@ -1,0 +1,133 @@
+#!/bin/bash
+#
+# In julia benchmark different spmv kernels for an increasing number of threads.
+
+
+# Command line arguments 
+
+# Julia link
+julia=$1
+# Benchmark properties
+m=$2
+n=$3
+nnzrow=$4
+# Additional benchmarks for mkl
+mycsr=true
+mklcsr=$5
+mklcsc=$6
+# Number of threads
+minthreads=$7
+maxthreads=$8
+
+
+# File and folder names
+
+# Create folder for results
+h=$(hostname)
+d=$(date +%Y-%m-%d)
+t=$(date +%H-%M-%S)
+header="${h}__${d}__${t}"
+echo $header
+folder="nthreads/spmv/${header}"
+mkdir -p $folder
+# Filepaths for results
+result1_csv="${folder}/result1.csv" # my csr
+result2_csv="${folder}/result2.csv" # mkl csr
+result3_csv="${folder}/result3.csv" # mkl csc
+results_txt="${folder}/results.txt" # combined results
+# Write header to combined results in the txt file
+echo $header >> $results_txt
+echo >> $results_txt
+
+
+# Get matrix properties and benchmark serial CSR/CSC MatVec from SparseArrays.jl 
+echo "SparseArrays.jl CSR & CSC"
+export JULIA_NUM_THREADS=1
+printf "nthreads = 1.."
+# Matrix properties
+echo "Multithreaded SpMV" >> $results_txt
+$julia spmv_jul.jl $m $n $nnzrow prop >> $results_txt
+echo >> $results_txt
+# Serial CSR
+echo "SparseArrays.jl CSR" >> $results_txt
+echo "nthreads  seconds" >> $results_txt
+printf "1" >> $results_txt
+$julia spmv_jul.jl $m $n $nnzrow csr >> $results_txt
+echo >> $results_txt
+#Serial CSC
+echo "SparseArrays.jl CSC" >> $results_txt
+echo "nthreads  seconds" >> $results_txt
+printf "1" >> $results_txt
+$julia spmv_jul.jl $m $n $nnzrow csc >> $results_txt
+echo >> $results_txt
+echo
+
+
+# Benchmark multithreaded CSR MatVec from MtSpMV.jl 
+if [ $mycsr = true ] ; then
+  # Print info
+  echo "MtSpMV.jl CSR"
+  echo "MtSpMV.jl CSR" >> $results_txt
+  printf "nthreads = "
+  echo "nthreads  seconds" >> $result1_csv
+  # Run benchmarks for increasing number of threads and write results to csv
+  export MKL_NUM_THREADS=1
+  for ((t=minthreads; t<=maxthreads ; t++)); do
+    printf "%d.." $t
+    export JULIA_NUM_THREADS=$t
+    printf "%d" $t >> $result1_csv
+    $julia spmv_my.jl $m $n $nnzrow par >> $result1_csv
+  done
+  echo
+  # Copy result from csv file to txt file with the combined results
+  cat $result1_csv >> $results_txt
+  echo >> $results_txt
+fi
+
+
+# Benchmark multithreaded CSR MatVec from MKLSparse.jl
+if [ $mklcsr = true ] ; then
+  # Print info
+  echo "MKLSparse.jl CSR"
+  echo "MKLSparse.jl CSR" >> $results_txt
+  printf "nthreads = "
+  echo "nthreads  seconds" >> $result2_csv
+  # Run benchmarks for increasing number of threads and write results to csv
+  export JULIA_NUM_THREADS=1
+  for ((t=minthreads; t<=maxthreads ; t++)); do
+    printf "%d.." $t
+    export MKL_NUM_THREADS=$t
+    $julia spmv_mkl.jl $m $n $nnzrow csr >> $result2_csv
+  done
+  echo
+  # Copy result from csv file to txt file with the combined results
+  cat $result2_csv >> $results_txt
+  echo >> $results_txt
+fi
+
+
+# Benchmark multithreaded CSC MatVec from MKLSparse.jl
+if [ $mklcsc = true ] ; then
+  # Print info
+  echo "MKLSparse.jl CSC"
+  echo "MKLSparse.jl CSC" >> $results_txt
+  printf "nthreads = "
+  echo "nthreads  seconds" >> $result3_csv
+  # Run benchmarks for increasing number of threads and write results to csv
+  export JULIA_NUM_THREADS=1
+  for ((t=minthreads; t<=maxthreads ; t++)); do
+    printf "%d.." $t
+    export MKL_NUM_THREADS=$t
+    $julia spmv_mkl.jl $m $n $nnzrow csc >> $result3_csv
+  done
+  echo
+  # Copy result from csv file to txt file with the combined results
+  cat $result3_csv >> $results_txt
+  echo >> $results_txt
+fi
+
+
+# Plot results
+echo "Plotting.."
+$julia plot.jl nthreads spmv $folder
+

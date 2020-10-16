@@ -1,0 +1,12 @@
+boe__2020-09-21__16-02-08
+
+CG, 2d FDM, n=1000, nnz=2998
+Converged after 13 iterations.
+
+SparseArrays.jl CSR
+1  0.000164218
+
+SparseArrays.jl CSC
+1  0.000120569
+
+MtSpMV.jl CSR

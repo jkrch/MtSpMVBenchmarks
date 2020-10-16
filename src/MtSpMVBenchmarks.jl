@@ -1,21 +1,18 @@
 module MtSpMVBenchmarks
 
-using MtSpMV
-using SparseArrays
-using ExtendableSparse
-using LinearAlgebra
-using IterativeSolvers
-using BenchmarkTools
-using Printf
-using Random
+using BenchmarkTools, MtSpMV, SparseArrays, ExtendableSparse, LinearAlgebra, 
+    IterativeSolvers, Random, MatrixMarket, Printf 
+
+import BenchmarkTools: prunekwargs, hasevals
+
+export @mybtime, @benchmed
+
+include(joinpath(dirname(@__FILE__), "linsys.jl"))
+include(joinpath(dirname(@__FILE__), "output.jl"))
 
 include("bench_constructors.jl")
-#include("parallellinalg_extension.jl")
 include("bench_spmv.jl")
-include("linsys.jl")
 include("bench_iterative.jl")
 include("bench_all.jl")
-
-export rnd_mat_vec
 
 end

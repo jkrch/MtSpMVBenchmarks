@@ -31,7 +31,7 @@ end
     
 
 # Benchmark IterativeSolvers.cg
-function bench_cg(n, linsys)
+function btime_cg(n, linsys)
 
     # Load linear system and solver
     println("Benchmark CG")
@@ -49,7 +49,7 @@ end
 
 
 # Benchmark IterativeSolvers.minres
-function bench_minres(n, linsys)
+function btime_minres(n, linsys)
 
     # Load linear system and solver
     println("Benchmark MINRES")
@@ -64,7 +64,7 @@ end
 
 
 # Benchmark IterativeSolvers.gmres
-function bench_gmres(n, linsys)
+function btime_gmres(n, linsys)
 
     # Load linear system
     println("Benchmark GMRES")
@@ -83,6 +83,6 @@ end
 
 #TODO: BiCGStab(l)
 # Benchmark IterativeSolvers.bicgstabl
-function bench_bicgstabl(n, linsys)
+function btime_bicgstabl(n, linsys)
     
 end

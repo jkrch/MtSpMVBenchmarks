@@ -1,0 +1,125 @@
+#!/bin/bash
+#
+# In julia benchmark different SpMV kernels for an increasing number of threads.
+
+
+# Command line arguments 
+
+# Julia link
+julia=$1
+# Benchmark properties
+N=$2
+nnzrow=5
+# Additional benchmarks for mkl
+mklcsr=$3
+mklcsc=$4
+
+
+# File and folder names
+
+# Create folder for results
+h=$(hostname)
+d=$(date +%Y-%m-%d)
+t=$(date +%H-%M-%S)
+header="${h}__${d}__${t}"
+echo $header
+folder="msize/spmv/${header}"
+mkdir -p $folder
+# Filepaths for results
+result1_csv="${folder}/result1.csv" # serial csr
+result2_csv="${folder}/result2.csv" # serial csc
+result3_csv="${folder}/result3.csv" # my csr
+result4_csv="${folder}/result4.csv" # mkl csr
+result5_csv="${folder}/result5.csv" # mkl csc
+results_txt="${folder}/results.txt" # combined results
+# Write header to txt file
+echo $header >> $results_txt
+echo >> $results_txt
+
+
+#######################################
+# Run benchmarks in julia.
+# Globals:
+#   N
+#   result
+#   results_txt
+#   julia
+#   jlfile
+#   nnzrow
+#   kernel
+# Arguments:
+#   None
+# Outputs:
+#   Writes results to csv and txt file
+#######################################
+function runbenchmarks() {
+  printf "msize = "
+  # Write header to csv file
+  echo "msize  seconds" >> $result
+  # Run benchmarks for increasing size of matrix and write results to csv
+  for ((i=1; i<=N ; i++)); do 
+    n=$((10**$i))
+    printf "10^%d.." $i
+    printf "%d" $n >> $result
+  $julia $jlfile $n $n $nnzrow $kernel >> $result
+  done
+  echo
+  # Copy results to txt file
+  cat $result >> $results_txt
+  echo >> $results_txt
+}
+
+
+# Benchmark serial CSR MatVec from SparseArrays.jl
+echo "SparseArrays.jl CSR"
+echo "SparseArrays.jl CSR" >> $results_txt
+jlfile=spmv_jul.jl
+kernel=csr
+result=$result1_csv
+runbenchmarks
+
+
+# Benchmark serial CSC MatVec from SparseArrays.jl
+echo "SparseArrays.jl CSC"
+echo "SparseArrays.jl CSC" >> $results_txt
+jlfile=spmv_jul.jl
+kernel=csc
+result=$result2_csv
+runbenchmarks
+
+
+# Benchmark multithreaded CSR MatVec from MtSpMV.jl
+echo "MtSpMV.jl CSR"
+echo "MtSpMV.jl CSR" >> $results_txt
+jlfile=spmv_my.jl
+kernel=csr
+result=$result3_csv
+runbenchmarks
+
+
+# Benchmark multithreaded CSR MatVec from MKLSparse.jl
+if [ $mklcsr = true ] ; then
+  echo "MKLSparse.jl CSR"
+  echo "MKLSparse.jl CSR" >> $results_txt
+  jlfile=spmv_mkl.jl
+  kernel=csr
+  result=$result4_csv
+  runbenchmarks
+fi
+
+
+# Benchmark multithreaded CSC MatVec from MKLSparse.jl
+if [ $mklcsc = true ] ; then
+  echo "MKLSparse.jl CSC"
+  echo "MKLSparse.jl CSC" >> $results_txt
+  jlfile=spmv_mkl.jl
+  kernel=csc
+  result=$result5_csv
+  runbenchmarks
+fi
+
+
+# Plot results
+echo "Plotting.."
+$julia plot.jl msize spmv $folder
+

@@ -1,0 +1,20 @@
+boe__2020-09-21__16-04-40
+
+CG, 2d FDM, n=1000, nnz=2998
+Converged after 13 iterations.
+
+SparseArrays.jl CSR
+nthreads  seconds
+1  0.000148557
+
+SparseArrays.jl CSC
+nthreads  seconds
+1  6.40895e-5
+
+MtSpMV.jl CSR
+nthreads  seconds
+1  0.0001369065
+2  0.0001182785
+3  0.0001419465
+4  0.0001449225
+

@@ -1,5 +1,5 @@
 # Benchmark the constructors for 'SparseMatrixCSR' in sparsematrixcsr.jl
-function bench_csr(m, n, d; seed=1, dense=false)
+function btime_csr(m, n, d; seed=1, dense=false)
     
     # Print info
     println("Benchmark constructors")

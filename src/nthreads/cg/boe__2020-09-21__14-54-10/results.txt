@@ -1,0 +1,21 @@
+boe__2020-09-21__14-54-10
+
+Multithreaded SpMV
+CG, 2d FDM, n=1000, nnz=2998
+Converged after 13 iterations.
+
+SparseArrays.jl CSR
+1  0.0001483715
+
+
+SparseArrays.jl CSC
+1  7.46305e-5
+
+
+MtSpMV.jl CSR
+nthreads  seconds
+1  0.000136443
+2  0.000119601
+3  0.0001417905
+4  0.000145765
+

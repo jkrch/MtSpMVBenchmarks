@@ -1,0 +1,20 @@
+boe__2020-09-14__23-31-00
+
+n=100000, nnz=498374
+Converged after 46 iterations.
+
+SparseArrays.jl CSR
+1  109.964 ms (311 allocations: 17.60 MiB)
+
+SparseArrays.jl CSC
+1  132.828 ms (23 allocations: 17.55 MiB)
+
+
+MtSpMV.jl CSR
+
+MKLSparse.jl CSR
+1  113.562 ms (311 allocations: 17.60 MiB)
+2  108.965 ms (311 allocations: 17.60 MiB)
+2  111.655 ms (311 allocations: 17.60 MiB)
+2  110.470 ms (311 allocations: 17.60 MiB)
+
