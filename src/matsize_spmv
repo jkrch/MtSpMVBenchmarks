@@ -25,9 +25,6 @@ echo $header
 folder="matsize/spmv/${header}"
 mkdir -p $folder
 
-# Filepath for benchmark description
-labels="${folder}/labels.txt"
-
 
 #######################################
 # Run benchmarks in julia.
@@ -53,7 +50,7 @@ function runbenchmarks() {
 		n=$((10**$i))
 		printf "10e%d.." $i
 		printf "%d" $n >> $result
-		$julia nthreads_run.jl spmv $kernel $matrix $n $n $nnzrow >> $result
+		$julia runbenchmarks.jl spmv $kernel $matrix $n $n $nnzrow >> $result
 	done
 	echo
 	# # Copy results to txt file
@@ -61,7 +58,7 @@ function runbenchmarks() {
 	# echo >> $labels
 }
 
-
+# TODO: Header
 function contains() {
     local n=$#
     local value=${!n}
@@ -80,14 +77,12 @@ function contains() {
 if [ $(contains "${kernels[@]}" "ser") == "y" ] && 
 [ $(contains "${matrices[@]}" "csr") == "y" ]; then
 	echo "SparseArrays.jl CSR, 1 thread(s)"
-	echo "SparseArrays.jl CSC, 1 thread(s)" >> $labels
 	kernel=ser
 	matrix=csr
 	result="${folder}/result_${kernel}_${matrix}_1.csv"
 	export MKL_NUM_THREADS=1
 	export JULIA_NUM_THREADS=1
 	runbenchmarks
-	echo >> $labels
 fi
 
 
@@ -95,14 +90,12 @@ fi
 if [ $(contains "${kernels[@]}" "ser") == "y" ] && 
 [ $(contains "${matrices[@]}" "csc") == "y" ]; then
 	echo "SparseArrays.jl CSC, 1 thread(s)"
-	echo "SparseArrays.jl CSC, 1 thread(s)" >> $labels
 	kernel=ser
 	matrix=csc
 	result="${folder}/result_${kernel}_${matrix}_1.csv"
 	export MKL_NUM_THREADS=1
 	export JULIA_NUM_THREADS=1
 	runbenchmarks
-	echo >> $labels
 fi
 
 
@@ -112,7 +105,6 @@ if [ $(contains "${kernels[@]}" "par") == "y" ] &&
 	for t in "${nthreads[@]}"
 	do
 		echo "MtSpMV.jl CSR, $t thread(s)"
-		echo "MtSpMV.jl CSR, $t thread(s)" >> $labels
 		kernel=par
 		matrix=csr
 		result="${folder}/result_${kernel}_${matrix}_$t.csv"
@@ -120,7 +112,6 @@ if [ $(contains "${kernels[@]}" "par") == "y" ] &&
 		export JULIA_NUM_THREADS=$t
 		runbenchmarks
 	done
-	echo >> $labels
 fi
 
 
@@ -130,7 +121,6 @@ if [ $(contains "${kernels[@]}" "mkl") == "y" ] &&
 	for t in "${nthreads[@]}"
 	do
 	    echo "MKLSparse.jl CSR, $t thread(s)"
-	    echo "MKLSparse.jl CSR, $t thread(s)" >> $labels
 	    kernel=mkl
 	    matrix=csr
 	    result="${folder}/result_${kernel}_${matrix}_$t.csv"
@@ -138,7 +128,6 @@ if [ $(contains "${kernels[@]}" "mkl") == "y" ] &&
 	    export JULIA_NUM_THREADS=1
 	    runbenchmarks
 	done
-	echo >> $labels
 fi
 
 
@@ -148,7 +137,6 @@ if [ $(contains "${kernels[@]}" "mkl") == "y" ] &&
 	for t in "${nthreads[@]}"
 	do
 	    echo "MKLSparse.jl CSC, $t thread(s)"
-	    echo "MKLSparse.jl CSC, $t thread(s)" >> $labels
 	    kernel=mkl
 	    matrix=csc
 	    result="${folder}/result_${kernel}_${matrix}_$t.csv"
@@ -156,11 +144,10 @@ if [ $(contains "${kernels[@]}" "mkl") == "y" ] &&
 	    export JULIA_NUM_THREADS=1
 	    runbenchmarks
 	done
-	echo >> $labels
 fi
 
 
 # Plot results
 echo "Plotting.."
-# $julia plot.jl matsize "spmv/${folder}"
+$julia plot_matsize.jl "${folder}"
 

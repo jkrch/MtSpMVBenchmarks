@@ -45,18 +45,6 @@ function result_index(results, s::String)
 end
 
 # Add benchmark results to plot
-function create_plot(result, index, label::String, path::String)
-	if !isempty(index)
-		for result in results
-			nthreads = result[length(result)-4:length(result)-4]
-			label = string(label, ", ", nthreads, " thread(s)")
-			matsize, seconds = get_results(result)
-			plot!(matsize, seconds, label=label)
-		end
-	end
-end
-
-# Add benchmark results to plot
 function add_plot(results, index, package::String, path::String)
 	if !isempty(index)
 		for result in results
@@ -81,30 +69,30 @@ function plot_matsize(path::String)
     plot(title="spmv", xlabel="Matrix size", ylabel="Runtime (seconds)") 
 
     # Add MtSpMV.jl CSR to plot
-    label = ("MtSpMV.jl")
+    label = ("MtSpMV.jl CSR")
     index = result_index(results, "par_csr")
     add_plot(results[index], index, label, path)
     png(joinpath(path, "1a"))
 
     # Add SparseArrays.jl CSR to plot
-    label = ("SparseArrays.jl")
+    label = ("SparseArrays.jl CSR")
     index = result_index(results, "ser_csr")
     add_plot(results[index], index, label, path)
 
     # Add SparseArrays.jl CSC to plot
-    label = ("SparseArrays.jl")
+    label = ("SparseArrays.jl CSC")
     index = result_index(results, "ser_csc")
     add_plot(results[index], index, label, path)
     png(joinpath(path, "2a"))
     
     # Add MKLSparse.jl CSR to plot
-    label = ("MKLSparse.jl")
-    index = result_index(results, "ser_csr")
+    label = ("MKLSparse.jl CSR")
+    index = result_index(results, "mkl_csr")
     add_plot(results[index], index, label, path)
 
     # Add SparseArrays.jl CSC to plot
-    label = ("MKLSparse.jl")
-    index = result_index(results, "ser_csc")
+    label = ("MKLSparse.jl CSC")
+    index = result_index(results, "mkl_csc")
     add_plot(results[index], index, label, path)
     png(joinpath(path, "3a"))
 
