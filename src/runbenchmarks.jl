@@ -9,7 +9,7 @@ using ExtendableSparse
 using Random
 
 include("linsys.jl")
-include("nthreads_bench.jl")
+include("benchmarks.jl")
 
 # Set benchmark parameters
 BenchmarkTools.DEFAULT_PARAMETERS.samples = 1000 # 10000 by default
