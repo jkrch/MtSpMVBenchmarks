@@ -7,39 +7,31 @@ the benchmarks in this repository have to be run by a shell script, in which the
 
 ## Usage
 
-Clone the repository to the (high performance) computer you want to run the benchmarks.
-
-### Sparse matrix-vector product
-
-#### Number of threads
+```console
+foo@bar:~$ cd path/to/dir
+foo@bar:~$ git clone https://github.com/jkrch/MtSpMVBenchmarks
+```
+Clones the repository to your computer (replace path/to/dir with the directory where you want to repo to be cloned to).
 
 ```console
-foo@bar:~$ src/nthreads_spmv julia_link m n nnzrow mkl_csr mkl_csc
+foo@bar:~$ cd src/MtSpMVBenchmarks
 ```
-| Argument     | Description                                                      |
-| :----------- | :--------------------------------------------------------------- |
-| `julia_link` | Link to your Julia version (for usage of different build Julias) |
-| `m`          | Number of matrix rows                                            |
-| `n`          | Number of matrix columns                                         |
-| `nnzrow`     | Number of approx. nonzeros per row                               |
-| `mkl_csr`    | Boolean, add benchmarks for CSR matrix-vector product from MKL   |
-| `mkl_csc`    | Boolean, add benchmarks for CSR matrix-vector product from MKL   |
+Moves to the direcotry where the benchmarks can be run from.
 
-#### Matrix size
+### Number of threads
 
 ```console
-foo@bar:~$ src/matsize_spmv julia_link nthreads N nnzrow mkl_csr mkl_csc
+foo@bar:~$ ./run_nthreads julia 'ser par mkl' 'csr csc' '1 64' spmv poisson 1000
 ```
-| Argument     | Description                                                      |
-| :----------- | :--------------------------------------------------------------- |
-| `julia_link` | Link to your Julia version (for usage of different build Julias) |
-| `nthreads`   | Number of threads                                                |
-| `N`          | Max. matrix size                                                 |
-| `nnzrow`     | Number of approx. nonzeros per row                               |
-| `mkl_csr`    | Boolean, add benchmarks for CSR matrix-vector product from MKL   |
-| `mkl_csc`    | Boolean, add benchmarks for CSR matrix-vector product from MKL   |
+Benchmarks the serial CSR and CSC MatVec of SparseArrays.jl, the multithreaded CSR MatVec MtSpMV.jl and the multithreaded CSR and CSC MatVec of MKLSparse.jl for 1,2,3,4 threads for the generated poisson matrix of size 100x100.
 
-### Iterative solvers
+### Matrix size
+
+```console
+foo@bar:~$ src/run_matsize julia 'ser par mkl' 'csr' '2 4 8' cg poisson '200 400 600 800 1000'
+```
+
+
 
 #### Number of threads
 
