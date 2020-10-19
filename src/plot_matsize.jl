@@ -17,7 +17,7 @@ default(size=(800*upscale,600*upscale))
 # default(dpi=300) #Only for PyPlot - presently broken
 
 
-# Get parallel benchmark results from csv file and return as arrays
+# Get benchmark results from csv file and return as arrays
 function get_results(path::String)
 
     # Read in csv file as dataframe
@@ -71,32 +71,43 @@ function plot_matsize(path::String)
     # Add MtSpMV.jl CSR to plot
     label = ("MtSpMV.jl CSR")
     index = result_index(results, "par_csr")
-    add_plot(results[index], index, label, path)
-    png(joinpath(path, "1a"))
-
-    # Add SparseArrays.jl CSR to plot
-    label = ("SparseArrays.jl CSR")
-    index = result_index(results, "ser_csr")
-    add_plot(results[index], index, label, path)
-
-    # Add SparseArrays.jl CSC to plot
-    label = ("SparseArrays.jl CSC")
-    index = result_index(results, "ser_csc")
-    add_plot(results[index], index, label, path)
-    png(joinpath(path, "2a"))
+    if !isempty(results[index])
+	    add_plot(results[index], index, label, path)
+	    png(joinpath(path, "1a"))
+	end
     
     # Add MKLSparse.jl CSR to plot
     label = ("MKLSparse.jl CSR")
     index = result_index(results, "mkl_csr")
-    add_plot(results[index], index, label, path)
+    if !isempty(results[index])
+    	add_plot(results[index], index, label, path)
+        png(joinpath(path, "2a"))
+    end
 
     # Add SparseArrays.jl CSC to plot
     label = ("MKLSparse.jl CSC")
     index = result_index(results, "mkl_csc")
-    add_plot(results[index], index, label, path)
-    png(joinpath(path, "3a"))
+    if !isempty(results[index])
+    	add_plot(results[index], index, label, path)
+        png(joinpath(path, "2a"))
+    end
 
-end    
+    # Add SparseArrays.jl CSR to plot
+    label = ("SparseArrays.jl CSR")
+    index = result_index(results, "ser_csr")
+    if !isempty(results[index])
+    	add_plot(results[index], index, label, path)
+        png(joinpath(path, "3a"))
+    end
+
+    # Add SparseArrays.jl CSC to plot
+    label = ("SparseArrays.jl CSC")
+    index = result_index(results, "ser_csc")
+    if !isempty(results[index])
+    	add_plot(results[index], index, label, path)
+        png(joinpath(path, "3a"))
+    end
+  
     
 #     # Plot speedups
         
@@ -140,7 +151,7 @@ end
 #         png(plotC)     
 #     end
 
-# end
+end
                                               
 
 # Run from command line

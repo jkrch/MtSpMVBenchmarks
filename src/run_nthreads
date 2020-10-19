@@ -1,0 +1,134 @@
+#!/bin/bash
+#
+# 
+
+bench=nthreads
+
+# Command line arguments 
+julia=$1
+kernels=$2
+formats=$3
+nthreads=$4
+solver=$5
+matrix=$6
+n=$7
+
+# Convert argument strings to arrays
+IFS=' ' read -ra kernels <<< "$kernels"
+IFS=' ' read -ra formats <<< "$formats"
+IFS=' ' read -ra nthreads <<< "$nthreads"
+IFS=' ' read -ra matsizes <<< "$matsizes"
+
+# Get min and max number of threads
+minthread="${nthreads[0]}"
+maxthread="${nthreads[1]}"
+
+# TODO: Header
+function contains() {
+    local n=$#
+    local value=${!n}
+    for ((i=1;i < $#;i++)) {
+        if [ "${!i}" == "${value}" ]; then
+            echo "y"
+            return 0
+        fi
+    }
+    echo "n"
+    return 1
+}
+
+# Break if only 'ser'
+if [ $(contains "${kernels[@]}" "par") != "y" ] && 
+[ $(contains "${kernels[@]}" "mkl") != "y" ]; then
+	echo "No benchmarks without 'par' or 'mkl'!"
+	exit 1
+fi
+
+# Create result folder
+h=$(hostname)
+d=$(date +%Y-%m-%d)
+t=$(date +%H-%M-%S)
+header="${h}__${d}__${t}"
+echo $header
+folder="../benchmarks/${solver}/${bench}/${header}"
+mkdir -p $folder
+
+# Matrix info
+$julia benchmark_ser.jl info $solver $matrix $n >> "${folder}/info.txt"
+
+# Benchmark serial CSR MatVec from SparseArrays.jl
+if [ $(contains "${kernels[@]}" "ser") == "y" ] && 
+[ $(contains "${formats[@]}" "csr") == "y" ]; then
+	echo "SparseArrays.jl CSR"
+	result="${folder}/result_ser_csr.csv"
+	echo "nthreads  seconds" >> $result
+	echo "nthreads = 1.."
+	printf "1" >> $result
+	$julia benchmark_ser.jl csr $solver $matrix $n >> $result
+fi
+
+# Benchmark serial CSC MatVec from SparseArrays.jl
+if [ $(contains "${kernels[@]}" "ser") == "y" ] && 
+[ $(contains "${formats[@]}" "csc") == "y" ]; then
+	echo "SparseArrays.jl CSC"
+	result="${folder}/result_ser_csc.csv"
+	echo "nthreads  seconds" >> $result
+	echo "nthreads = 1.."
+	printf "1" >> $result
+	$julia benchmark_ser.jl csc $solver $matrix $n >> $result
+fi
+
+# Benchmark multithreaded CSR MatVec from MtSpMV.jl
+if [ $(contains "${kernels[@]}" "par") == "y" ] && 
+[ $(contains "${formats[@]}" "csr") == "y" ]; then
+	echo "MtSpMV.jl CSR"
+	printf "nthreads = "
+	result="${folder}/result_par_csr.csv"
+	echo "nthreads  seconds" >> $result
+	export MKL_NUM_THREADS=1
+	for ((t=minthread; t<=maxthread ; t++)); do
+		export JULIA_NUM_THREADS=$t
+		printf "%d.." $t
+		printf "%d" $t >> $result
+		$julia benchmark_par.jl csr $solver $matrix $n >> $result
+	done
+	echo
+fi
+
+# Benchmark multithreaded CSR MatVec from MKLSparse.jl
+if [ $(contains "${kernels[@]}" "mkl") == "y" ] && 
+[ $(contains "${formats[@]}" "csr") == "y" ]; then
+	echo "MKLSparse.jl CSR"
+	printf "nthreads = "
+	result="${folder}/result_mkl_csr.csv"
+	echo "nthreads  seconds" >> $result
+	export JULIA_NUM_THREADS=1
+	for ((t=minthread; t<=maxthread ; t++)); do
+		export MKL_NUM_THREADS=$t
+		printf "%d.." $t
+		printf "%d" $t >> $result
+		$julia benchmark_mkl.jl csr $solver $matrix $n >> $result
+	done
+	echo
+fi
+
+# Benchmark multithreaded CSC MatVec from MKLSparse.jl
+if [ $(contains "${kernels[@]}" "mkl") == "y" ] && 
+[ $(contains "${formats[@]}" "csc") == "y" ]; then
+	echo "MKLSparse.jl CSR"
+	printf "nthreads = "
+	result="${folder}/result_mkl_csc.csv"
+	echo "nthreads  seconds" >> $result
+	export JULIA_NUM_THREADS=1
+	for ((t=minthread; t<=maxthread ; t++)); do
+		export MKL_NUM_THREADS=$t
+		printf "%d.." $t
+		printf "%d" $t >> $result
+		$julia benchmark_mkl.jl csc $solver $matrix $n >> $result
+	done
+	echo
+fi
+
+# Plot results
+echo "Plotting.."
+$julia plot_nthreads.jl $folder
