@@ -38,13 +38,21 @@ foo@bar:~$ src/run_matsize julia 'ser par mkl' 'csr' '2 4 8' cg poisson '200 400
 ```console
 foo@bar:~$ src/nthreads_iter julia_link solver linsys n mkl_csr mkl_csc
 ```
-| Argument     | Description                                                        |
-| :----------- | :----------------------------------------------------------------- |
-| `julia_link` | Link to your Julia version (for usage of different build Julias)   |
-| `solver`     | Iterative solver, choose from "cg", "minres", "bicgstabl", "gmres" |
-| `linsys`     | Linear system type, choose from "fdm2d", "fdm3d", "fem2d"          |
-| `n`          | Size of linear system                                              |
-| `mkl_csr`    | Boolean, add benchmarks for CSR matrix-vector product from MKL     |
-| `mkl_csc`    | Boolean, add benchmarks for CSR matrix-vector product from MKL     |
+| Argument     | Description |
+| :----------- | :--- |
+| `julia_link` | Link to your Julia version (for usage of different build Julias) |
+| `kernels`    | 'ser' = SparseArrays.jl |
+|              | 'par' = MtSpMV.jl |
+|              | 'mkl' = MKLSparse.jl |
+| `formats`    | 'csr' = CSR MatVec |
+|              | 'csc' = CSC MatVec |
+| `nthreads`   | 'minthreads maxthreads' |
+| `solver`     | 'spmv' = sparse matrix-vector product |
+|              | 'cg', 'minres', 'gmres', 'bicgstabl' = iterative solver |
+| `matrix'     | name of the matrix from MatrixDepot.jl |
+| 'n'          | size of the matrix |
 
-
+## ToDo
+* Preconditioning
+* Parallel Speedup
+* GFlops (maybe)
