@@ -9,7 +9,7 @@ the benchmarks in this repository have to be run by a shell script, in which the
 
 ```console
 foo@bar:~$ cd <dir>
-foo@bar:~/path/to/dir$ git clone https://github.com/jkrch/MtSpMVBenchmarks
+foo@bar:~/dir$ git clone https://github.com/jkrch/MtSpMVBenchmarks
 ```
 Clones the repository to your computer (replace <dir> with the directory where you want the repository to be cloned to).
 
