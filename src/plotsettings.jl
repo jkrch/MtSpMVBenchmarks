@@ -1,12 +1,12 @@
 # Plot settings
 
 # Backend
-pyplot()
+gr()
 
 # Plot size 
-# upscale = 1 #8x upscaling in resolution
-# fntsm = Plots.font("sans-serif", pointsize=round(10.0*upscale))
-# fntlg = Plots.font("sans-serif", pointsize=round(14.0*upscale))
-# default(titlefont=fntlg, guidefont=fntlg, tickfont=fntsm, legendfont=fntsm)
-# default(size=(800*upscale,600*upscale)) #Plot canvas size
-default(dpi=300) #Only for PyPlot - presently broken
+font1 = Plots.font("sans-serif", pointsize=12)
+font2 = Plots.font("sans-serif", pointsize=8)
+default(titlefont=font1)
+default(guidefont=font2, tickfont=font2, legendfont=font2, legendfontsize=font2)
+default(size=(800,600))
+default(dpi=200)
