@@ -16,14 +16,14 @@ Clones the repository to your computer (replace <dir> with the directory where y
 ```console
 foo@bar:~/dir$ cd MtSpMVBenchmarks/src
 ```
-Moves to the directory where the benchmarks can be run from.
+Changes to the directory where the benchmarks can be run from.
 
 ### Number of threads
 
 ```console
 foo@bar:~/dir/MtSpMVBenchmarks/src$ ./run_nthreads julia 'ser par mkl' 'csr csc' '1 64' spmv poisson 1000
 ```
-Benchmarks the serial CSR and CSC MatVec of SparseArrays.jl, the multithreaded CSR MatVec MtSpMV.jl and the multithreaded CSR and CSC MatVec of MKLSparse.jl for 1,2,3,4 threads for the generated poisson matrix of size 100x100.
+Benchmarks the serial CSR and CSC MatVec of SparseArrays.jl, the multithreaded CSR MatVec MtSpMV.jl and the multithreaded CSR and CSC MatVec of MKLSparse.jl for 1,2,3,4 threads for the generated poisson matrix of size 1000x1000.
 
 ### Matrix size
 
@@ -53,6 +53,7 @@ foo@bar:~$ src/nthreads_iter julia_link solver linsys n mkl_csr mkl_csc
 | 'n'          | size of the matrix |
 
 ## ToDo
+* Documentation
 * Preconditioning
 * Parallel Speedup
 * GFlops (maybe)
