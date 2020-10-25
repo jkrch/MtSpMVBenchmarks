@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# 
+# Only symmetric matrices!
 
 bench=matsize
 
@@ -11,24 +11,25 @@ formats=$3
 nthreads=$4
 solver=$5
 matrix=$6
-matsizes=$7
+ns=$7
+nnzrow=$8
 
 # Convert argument strings to arrays
 IFS=' ' read -ra kernels <<< "$kernels"
 IFS=' ' read -ra formats <<< "$formats"
 IFS=' ' read -ra nthreads <<< "$nthreads"
-IFS=' ' read -ra matsizes <<< "$matsizes"
+IFS=' ' read -ra ns <<< "$ns"
 
 # TODO: Header
 function contains() {
     local n=$#
     local value=${!n}
-    for ((i=1;i < $#;i++)) {
+    for ((i=1; i < $#; i++)); do
         if [ "${!i}" == "${value}" ]; then
             echo "y"
             return 0
         fi
-    }
+    done
     echo "n"
     return 1
 }
@@ -39,7 +40,7 @@ d=$(date +%Y-%m-%d)
 t=$(date +%H-%M-%S)
 header="${h}__${d}__${t}"
 echo $header
-folder="../benchmarks/${solver}/${bench}/${header}"
+folder="../benchmark/${solver}/${bench}/${header}"
 mkdir -p $folder
 
 #######################################
@@ -60,11 +61,10 @@ function runbenchmarks() {
 	# Write header to csv file
 	echo "matsize  seconds" >> $result
 	# Run benchmarks for increasing size of matrix and write results to csv
-	for n in "${matsizes[@]}"
-	do
+	for n in "${ns[@]}"; do
 		printf "%d.." $n
 		printf "%d" $n >> $result
-		$julia "benchmark_${kernel}.jl" $format $solver $matrix $n >> $result
+		$julia "benchmark_${kernel}.jl" $format $solver $matrix $n $n $nnzrow >> $result
 	done
 	echo
 }
@@ -96,8 +96,7 @@ fi
 # Benchmark multithreaded CSR MatVec from MtSpMV.jl
 if [ $(contains "${kernels[@]}" "par") == "y" ] && 
 [ $(contains "${formats[@]}" "csr") == "y" ]; then
-	for t in "${nthreads[@]}"
-	do
+	for t in "${nthreads[@]}"; do
 		echo "MtSpMV.jl CSR, $t thread(s)"
 		kernel=par
 		format=csr
@@ -111,8 +110,7 @@ fi
 # Benchmark multithreaded CSR MatVec from MKLSparse.jl
 if [ $(contains "${kernels[@]}" "mkl") == "y" ] && 
 [ $(contains "${formats[@]}" "csr") == "y" ]; then
-	for t in "${nthreads[@]}"
-	do
+	for t in "${nthreads[@]}"; do
 	    echo "MKLSparse.jl CSR, $t thread(s)"
 	    kernel=mkl
 	    format=csr
@@ -126,8 +124,7 @@ fi
 # Benchmark multithreaded CSC MatVec from MKLSparse.jl
 if [ $(contains "${kernels[@]}" "mkl") == "y" ] && 
 [ $(contains "${formats[@]}" "csc") == "y" ]; then
-	for t in "${nthreads[@]}"
-	do
+	for t in "${nthreads[@]}"; do
 	    echo "MKLSparse.jl CSC, $t thread(s)"
 	    kernel=mkl
 	    format=csc

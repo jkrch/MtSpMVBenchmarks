@@ -1,3 +1,5 @@
+module PlotMatsize
+
 # Solves problems with Plots.jl on ssh servers
 # (https://github.com/JuliaPlots/Plots.jl/issues/1905#issuecomment-458778817)
 ENV["GKSwstype"]="100"
@@ -7,6 +9,7 @@ using DataFrames
 using CSV
 using DelimitedFiles
 using Glob
+using Suppressor
 
 include("plotsettings.jl")
 
@@ -51,7 +54,7 @@ function add_plot(results, index, package::String, path::String)
 end
 
 # Create and save plots for matrix size to time and for matrix size to speedup
-function plot_matsize(path::String)
+function plot_runtime(path::String)
 	    
     # File paths of results
     results = glob("result*.csv", path)
@@ -60,7 +63,10 @@ function plot_matsize(path::String)
     linestyles = [:solid, :dash, :dot, :dashdot, :dashdotdot]
 
     # Create runtime plot
-    plot(title="spmv", xlabel="Matrix size", ylabel="Runtime (seconds)") 
+    plot(title="spmv", 
+    	 xlabel="Matrix size", 
+    	 ylabel="Runtime (seconds)", 
+    	 legend=:outertopright) 
 
     # Add MtSpMV.jl CSR to plot
     label = ("MtSpMV.jl CSR")
@@ -101,6 +107,8 @@ function plot_matsize(path::String)
     	add_plot(results[index], index, label, path)
         png(joinpath(path, "3a"))
     end
+
+end
   
     
 #     # Plot speedups
@@ -145,9 +153,10 @@ function plot_matsize(path::String)
 #         png(plotC)     
 #     end
 
-end
                                               
 
 # Run from command line
 # ARGS[1]: path to results
-plot_matsize(ARGS[1])
+@suppress plot_runtime(ARGS[1])
+
+end # module

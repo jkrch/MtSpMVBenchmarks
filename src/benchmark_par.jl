@@ -40,11 +40,6 @@ function run()
 		m = 	 	parse(Int, ARGS[4])
 		n = 	 	parse(Int, ARGS[5])
 		nnzrow = 	parse(Int, ARGS[6])
-	elseif matrix == "fdm3d"
-		nx = 	 	parse(Int, ARGS[4])
-		ny = 	 	parse(Int, ARGS[5])
-		nz = 	 	parse(Int, ARGS[6])
-		n = nx * ny * nz
 	else
 		if length(ARGS) > 3
 			n =	 	parse(Int, ARGS[4])
@@ -58,7 +53,7 @@ function run()
 	elseif matrix == "fem2d"
 		A = fem2d(n)
 	elseif matrix == "fdm3d"
-		A = fdm3d(nx, ny, nz)
+		A = fdm3d(n)
 	else
 		if length(ARGS) > 3 
 			@suppress A = matrixdepot(matrix, n)

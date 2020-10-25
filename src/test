@@ -1,0 +1,25 @@
+#!/bin/bash
+
+# Command line arguments 
+julia=$1
+kernels=$2
+formats=$3
+nthreads=$4
+solver=$5
+matrix=$6
+matsizes1=$7
+matsizes2=$8
+matsizes3=$9
+
+# Convert argument strings to arrays
+IFS=' ' read -ra kernels <<< "$kernels"
+IFS=' ' read -ra formats <<< "$formats"
+IFS=' ' read -ra nthreads <<< "$nthreads"
+IFS=' ' read -ra matsizes1 <<< "$matsizes1"
+IFS=' ' read -ra matsizes2 <<< "$matsizes2"
+IFS=' ' read -ra matsizes3 <<< "$matsizes3"
+
+
+for ((i=0; i<${#matsizes1[@]}; ++i)); do
+	printf ${matsizes1[i]}
+done

@@ -5,14 +5,11 @@ problem with random coefficients on a unit hypercube
 
 *Input options:*
 
-+ nx: number of unknowns in x direction 
-+ ny: number of unknowns in y direction 
-+ nz: number of unknowns in z direction 
++ n: number of unknowns in x, y, z direction 
 """ 
-function fdm3d(nx, ny, nz)
-    n = nx*ny*nz
+function fdm3d(n)
     A = ExtendableSparseMatrix(n, n)
-    fdrand!(A, nx, ny, nz)
+    fdrand!(A, n, n, n)
     flush!(A)
     return  A.cscmatrix
 end
