@@ -2,7 +2,7 @@
 
 This repository is a collection of benchmarks for the Julia package [MtSpMV](https://github.com/jkrch/MtSpMV.jl).
 
-Because the number of Julia threads has to be set before the start of a Julia session and can not be changed from inside it (other then e.g. the number of BLAS threads).
+Because the number of Julia threads has to be set before the start of a Julia session and can not be changed from inside it (other then e.g. the number of BLAS threads),
 the benchmarks in this repository have to be run by a shell script, in which the number of Julia threads can be controlled.
 
 ## Usage
