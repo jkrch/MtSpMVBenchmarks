@@ -55,6 +55,5 @@ foo@bar:~$ src/nthreads_iter julia_link solver linsys n mkl_csr mkl_csc
 ## ToDo
 * Documentation
 * Preconditioning
-* Parallel Speedup
 * GFlops (maybe)
-* Unit testing (Julia and BASH)
+* Unit testing (Julia and Shell)
