@@ -1,0 +1,33 @@
+#!/bin/bash
+#
+# 
+
+bench=nthreads
+
+# Command line arguments 
+julia=$1
+kernels=$2
+formats=$3
+nthreads=$4
+solver=$5
+matrix=$6
+matsize1=$7
+matsize2=$8
+matsize3=$9
+
+# Convert argument strings to arrays
+IFS=' ' read -ra kernels <<< "$kernels"
+IFS=' ' read -ra formats <<< "$formats"
+IFS=' ' read -ra nthreads <<< "$nthreads"
+
+# Get min and max number of threads
+minthread="${nthreads[0]}"
+maxthread="${nthreads[1]}"
+echo ${maxthread}
+if [ $maxthread == "max_logical" ]; then
+	maxthread=$(grep -c ^processor /proc/cpuinfo)
+elif [ $maxthread == "max_physical" ]; then
+	maxthread=$(grep ^cpu\\scores /proc/cpuinfo | uniq |  awk '{print $4}')
+fi
+
+echo ${maxthread}

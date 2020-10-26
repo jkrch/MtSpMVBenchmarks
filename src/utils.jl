@@ -6,16 +6,22 @@ import BenchmarkTools: prunekwargs, hasevals
 # Returns the *median* (instead of the *minimum* in btime) elapsed time (in 
 # seconds instead in pretty time in btime).
 # No output about memory and no tuning phase.
-macro benchmed(args...)
+macro mybtimes(args...)
     _, params = prunekwargs(args...)
     bench, trial, result = gensym(), gensym(), gensym()
+    trialmin = gensym()
     trialmed = gensym()
+    trialmean = gensym()
     return esc(quote
         local $bench = $BenchmarkTools.@benchmarkable $(args...)
         $BenchmarkTools.warmup($bench)
         local $trial, $result = $BenchmarkTools.run_result($bench)
+        local $trialmin = $BenchmarkTools.minimum($trial)
         local $trialmed = $BenchmarkTools.median($trial)
-        println("  ", $BenchmarkTools.time($trialmed)/1e9)
+        local $trialmean = $BenchmarkTools.mean($trial)
+        println(" ", $BenchmarkTools.time($trialmin)/1e9,
+        		" ", $BenchmarkTools.time($trialmed)/1e9,
+        		" ", $BenchmarkTools.time($trialmean)/1e9)
         $result
     end)
 end

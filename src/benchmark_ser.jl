@@ -16,21 +16,21 @@ include("parameters.jl")
 # Prints median benchmark time
 function spmv(transA::Transpose{<:Any,<:SparseMatrixCSC}, x::StridedVector)
 	y = zeros(length(x))
-    @benchmed mul!($y, $transA, $x)
+    @mybtimes mul!($y, $transA, $x)
 end
 function spmv(A::SparseMatrixCSC, x::StridedVector)
 	y = zeros(length(x))
-    @benchmed mul!($y, $A, $x)
+    @mybtimes mul!($y, $A, $x)
 end
 
 
 # Benchmark iterative solvers from IterativeSolvers.jl
 # Prints median benchmark time
 function iter(transA::Transpose{<:Any,<:SparseMatrixCSC}, b::StridedVector, solver::Function)
-    @benchmed $solver($transA, $b)
+    @mybtimes $solver($transA, $b)
 end
 function iter(A::SparseMatrixCSC, b::StridedVector, solver::Function)
-    @benchmed $solver($A, $b)
+    @mybtimes $solver($A, $b)
 end
 
 

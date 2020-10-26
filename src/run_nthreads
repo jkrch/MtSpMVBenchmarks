@@ -23,6 +23,11 @@ IFS=' ' read -ra nthreads <<< "$nthreads"
 # Get min and max number of threads
 minthread="${nthreads[0]}"
 maxthread="${nthreads[1]}"
+if [ $maxthread == "max_logical" ]; then
+	maxthread=$(grep -c ^processor /proc/cpuinfo)
+elif [ $maxthread == "max_physical" ]; then
+	maxthread=$(grep ^cpu\\scores /proc/cpuinfo | uniq |  awk '{print $4}')
+fi
 
 # Create result folder
 h=$(hostname)
@@ -40,7 +45,7 @@ $julia benchmark_ser.jl info $solver $matrix $matsize1 $matsize2 $matsize3 >> $r
 # Benchmark serial CSR MatVec from SparseArrays.jl
 echo "SparseArrays.jl CSR"
 result="${folder}/result_ser_csr.csv"
-echo "nthreads  seconds" >> $result
+echo "nthreads minimum median mean" >> $result
 printf "nthreads = 1.."
 printf "1" >> $result
 $julia benchmark_ser.jl csr $solver $matrix $matsize1 $matsize2 $matsize3 >> $result
@@ -49,7 +54,7 @@ echo
 # Benchmark serial CSC MatVec from SparseArrays.jl
 echo "SparseArrays.jl CSC"
 result="${folder}/result_ser_csc.csv"
-echo "nthreads  seconds" >> $result
+echo "nthreads minimum median mean" >> $result
 printf "nthreads = 1.."
 printf "1" >> $result
 $julia benchmark_ser.jl csc $solver $matrix $matsize1 $matsize2 $matsize3 >> $result
@@ -84,7 +89,7 @@ if [ $(contains "${kernels[@]}" "par") == "y" ] &&
 	echo "MtSpMV.jl CSR"
 	printf "nthreads = "
 	result="${folder}/result_par_csr.csv"
-	echo "nthreads  seconds" >> $result
+	echo "nthreads minimum median mean" >> $result
 	export MKL_NUM_THREADS=1
 	for ((t=minthread; t<=maxthread ; t++)); do
 		export JULIA_NUM_THREADS=$t
@@ -101,7 +106,7 @@ if [ $(contains "${kernels[@]}" "mkl") == "y" ] &&
 	echo "MKLSparse.jl CSR"
 	printf "nthreads = "
 	result="${folder}/result_mkl_csr.csv"
-	echo "nthreads  seconds" >> $result
+	echo "nthreads minimum median mean" >> $result
 	export JULIA_NUM_THREADS=1
 	for ((t=minthread; t<=maxthread ; t++)); do
 		export MKL_NUM_THREADS=$t
@@ -118,7 +123,7 @@ if [ $(contains "${kernels[@]}" "mkl") == "y" ] &&
 	echo "MKLSparse.jl CSC"
 	printf "nthreads = "
 	result="${folder}/result_mkl_csc.csv"
-	echo "nthreads  seconds" >> $result
+	echo "nthreads minimum median mean" >> $result
 	export JULIA_NUM_THREADS=1
 	for ((t=minthread; t<=maxthread ; t++)); do
 		export MKL_NUM_THREADS=$t
