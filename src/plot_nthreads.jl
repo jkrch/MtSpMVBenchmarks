@@ -10,6 +10,7 @@ using CSV
 using DelimitedFiles
 using Suppressor
 
+# Load plot settings
 include("plotsettings.jl")
 
 
@@ -43,10 +44,17 @@ function plot_runtime(path::String)
    	end
 
    	# Create plot
-   	plot(title=title,
-   		 xlabel="Number of threads",
-   		 ylabel="Runtime (seconds)",
-   		 legend=:outertopright)
+   	plot(
+   		title=title,
+   		xlabel="Number of threads",
+   		ylabel="Runtime (seconds)",
+   		size=plotsettings["size"],
+   		dpi=plotsettings["dpi"],
+   		titlefont=plotsettings["titlefont"],
+   		tickfont=plotsettings["tickfont"],
+   		legendfont=plotsettings["legendfont"],
+   		legend=plotsettings["legend"]
+   	)
     
     # MtSpMV.jl CSR
     result = joinpath(path, "result_par_csr.csv")
@@ -112,114 +120,75 @@ function plot_runtime(path::String)
 
 end
 
-# # Plot nthreads to speedup
-# function plot_speedup(path::String)
+# Helper function for plot_speedup()
+# Compute the parallel speedup and add it to the plot
+function add_speedup(label::String, csv::String, out::String, path::String, linestyle::Symbol)
+	
+	# Get serial runtimes
+	seconds_ser_csr = get_results(joinpath(path, "result_ser_csr.csv"))[2][1]
+	seconds_ser_csc = get_results(joinpath(path, "result_ser_csc.csv"))[2][1]
+	
+	# Compute parallel speedup and add to plot
+    if isfile(joinpath(path, csv))
+    	
+    	# Get parallel runtimes
+	    nthreads, seconds = get_results(joinpath(path, csv))
+	    
+	    # Compute speedup
+	    speedup_csr = zeros(Float64, length(seconds)) 
+	    speedup_csc = zeros(Float64, length(seconds)) 
+	    for i in 1:length(seconds)
+	    	speedup_csr[i] = seconds_ser_csr / seconds[i]
+	    	speedup_csc[i] = seconds_ser_csc / seconds[i]
+	    end
 
-# 	# Diffrent linestyles
-# 	linestyles = [:solid, :dash, :dot, :dashdot, :dashdotdot]
+	    # Add to plot
+	    plot!(nthreads, speedup_csr, linestyle=linestyle,
+	    	label=string(label, " over SparseArrays.jl CSR"))
+	    plot!(nthreads, speedup_csc, linestyle=linestyle,
+	    	label=string(label, " over SparseArrays.jl CSC"))
 
-# 	# Get plottitle
-# 	title = readlines(joinpath(path, "info.txt"))[1]
-# 	subtitle = readlines(joinpath(path, "info.txt"))[2]
-# 	if !isempty(subtitle)
-# 		title = string(title, "\n", subtitle)
-# 	end
+	    # Save plot
+	    savefig(joinpath(path, string(out, ".png")))
+	    # savefig(joinpath(path, string(out, ".svg")))
+	    # savefig(joinpath(path, string(out, ".tex")))
+	    # savefig(joinpath(path, string(out, ".pdf")))
+	
+	end
 
-# 	# Create plot
-# 	plot(xlabel="Number of threads",
-# 		 ylabel="Parallel speedup",
-# 		 legend=:outertopright,
-# 		 title=title)
+end
 
-# 	# Get serial runtimes
-# 	seconds_ser_csr = get_results(joinpath(path, "result_ser_csr.csv"))[2]
-# 	seconds_ser_csc = get_results(joinpath(path, "result_ser_csr.csv"))[2]
-   
-#     # MtSpMV.jl CSR
-#     result = joinpath(path, "result_par_csr.csv")
-#     if isfile(result)
-# 	    nthreads, seconds = get_results(result)
-# 	    speedup_csr = 
-# 	    speedup_csc
-# 	    for ispeedup in speedup
-# 	    	ispeedup = seconds_ser_csr
+# Plot nthreads to speedup
+function plot_speedup(path::String)
 
-# 	        # end
-# 	    plot!(nthreads, seconds, label="MtSpMV.jl CSR")
-# 	    filename = "1a"
-# 	    savefig(joinpath(path, string(filename, ".png")))
-# 	    # savefig(joinpath(path, string(filename, ".svg")))
-# 	    # savefig(joinpath(path, string(filename, ".tex")))
-# 	    # savefig(joinpath(path, string(filename, ".pdf")))
-# 	end
+	# Diffrent linestyles
+	linestyles = [:solid, :dash, :dot, :dashdot, :dashdotdot]
 
+	# Get plottitle
+	title = readlines(joinpath(path, "info.txt"))[1]
+	subtitle = readlines(joinpath(path, "info.txt"))[2]
+	if !isempty(subtitle)
+		title = string(title, "\n", subtitle)
+	end
 
+	# Create plot
+	plot(
+		title=title,
+		xlabel="Number of threads",
+		ylabel="Parallel speedup",
+		size=plotsettings["size"],
+		dpi=plotsettings["dpi"],
+		titlefont=plotsettings["titlefont"],
+		tickfont=plotsettings["tickfont"],
+		legendfont=plotsettings["legendfont"],
+		legend=plotsettings["legend"]
+	)
 
-#     result = joinpath(path, "result_ser_csr.csv")
-#     if isfile(result)
-# 	    speedup = get_results(result)[2]
-# 	    speedup = ones(Int, length(nthreads)) * seconds[1]
-#     if isfile(result)
-# 	    seconds = get_results(result)[2]
-# 	    seconds = ones(Int, length(nthreads)) * seconds[1]
-# 	    plot!(nthreads, seconds, label="SparseArrays.jl CSR")
-# 	    filename = "3a"
-# 	    savefig(joinpath(path, string(filename, ".png")))
-# 	    # savefig(joinpath(path, string(filename, ".svg")))
-# 	    # savefig(joinpath(path, string(filename, ".tex")))
-# 	    # savefig(joinpath(path, string(filename, ".pdf")))
-# 	end
-    
-    
-#     # Get serial times
-#     sertimecsr = get_results(joinpath(path, "result_ser_csr.csv"))
-#     sertimecsc = get_results(joinpath(path, "result_ser_csc.csv"))
-    
-#     # # MtSpMV.jl CSR
-#     # speedup1 = zeros(length(time1))
-#     # speedup2 = zeros(length(time1))
-#     # for i = 1:length(time1)
-#     #     speedup1[i] = sertimecsr / time1[i]
-#     #     speedup2[i] = sertimecsc / time1[i]
-#     # end
-#     # plot(nthreads1, speedup1, title=title, dpi=300, legend=:topleft, 
-#     #      legendfontsize=6, label="MtSpMV.jl CSR over SparseArrays.jl CSR", 
-#     #      xlabel="Number of threads", ylabel="Parallel speedup") 
-#     # plot!(nthreads1, speedup2, linestyle=:dash, 
-#     #       label="MtSpMV.jl CSR over SparseArrays.jl CSC")
-#     # png(plotA)
+    # MKLSparse.jl CSR
+    add_speedup("MtSpMV.jl CSR",    "result_par_csr.csv", "1b", path, linestyles[1])
+    add_speedup("MKLSparse.jl CSR", "result_mkl_csr.csv", "2b", path, linestyles[3])
+    add_speedup("MKLSparse.jl CSC", "result_mkl_csc.csv", "2b", path, linestyles[2])
 
-#     # # MKLSparse.jl CSR
-#     # if isfile(result2_csv)
-#     #     speedup3 = zeros(length(time2))
-#     #     speedup4 = zeros(length(time2))
-#     #     for i = 1:length(time1)
-#     #         speedup3[i] = sertimecsr / time2[i]
-#     #         speedup4[i] = sertimecsc / time2[i]
-#     #     end
-#     #     plot!(nthreads2, speedup3, linestyle=:dot, 
-#     #           label="MKLSparse.jl CSR over SparseArrays.jl CSR")
-#     #     plot!(nthreads2, speedup4, linestyle=:dashdot, 
-#     #           label="MKLSparse.jl CSR over SparseArrays.jl CSC")   
-#     #     png(plotB)
-#     # end
-        
-#     # # MKLSparse.jl CSC
-#     # if isfile(result3_csv)
-#     #     speedup5 = zeros(length(time3))
-#     #     for i = 1:length(time1)
-#     #         speedup5[i] = sertimecsc / time3[i]
-#     #     end
-#     #     plot!(nthreads3, speedup5, linestyle=:dashdotdot,
-#     #           label="MKLSparse.jl CSC over SparseArrays.jl CSC", )
-#     #     png(plotC)     
-#     # end
-
-# end
-
-
-# Run from command line
-# ARGS[1]: path to results
-@suppress plot_runtime(ARGS[1])
+end
 
 end # module

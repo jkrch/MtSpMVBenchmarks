@@ -24,27 +24,6 @@ IFS=' ' read -ra nthreads <<< "$nthreads"
 minthread="${nthreads[0]}"
 maxthread="${nthreads[1]}"
 
-# TODO: Header
-function contains() {
-    local n=$#
-    local value=${!n}
-    for ((i=1;i < $#;i++)) {
-        if [ "${!i}" == "${value}" ]; then
-            echo "y"
-            return 0
-        fi
-    }
-    echo "n"
-    return 1
-}
-
-# Break if only 'ser'
-if [ $(contains "${kernels[@]}" "par") != "y" ] && 
-[ $(contains "${kernels[@]}" "mkl") != "y" ]; then
-	echo "No benchmarks without 'par' or 'mkl'!"
-	exit 1
-fi
-
 # Create result folder
 h=$(hostname)
 d=$(date +%Y-%m-%d)
@@ -59,28 +38,45 @@ result="${folder}/info.txt"
 $julia benchmark_ser.jl info $solver $matrix $matsize1 $matsize2 $matsize3 >> $result
 
 # Benchmark serial CSR MatVec from SparseArrays.jl
-if [ $(contains "${kernels[@]}" "ser") == "y" ] && 
-[ $(contains "${formats[@]}" "csr") == "y" ]; then
-	echo "SparseArrays.jl CSR"
-	result="${folder}/result_ser_csr.csv"
-	echo "nthreads  seconds" >> $result
-	printf "nthreads = 1.."
-	printf "1" >> $result
-	$julia benchmark_ser.jl csr $solver $matrix $matsize1 $matsize2 $matsize3 >> $result
-	echo
-fi
+echo "SparseArrays.jl CSR"
+result="${folder}/result_ser_csr.csv"
+echo "nthreads  seconds" >> $result
+printf "nthreads = 1.."
+printf "1" >> $result
+$julia benchmark_ser.jl csr $solver $matrix $matsize1 $matsize2 $matsize3 >> $result
+echo
 
 # Benchmark serial CSC MatVec from SparseArrays.jl
-if [ $(contains "${kernels[@]}" "ser") == "y" ] && 
-[ $(contains "${formats[@]}" "csc") == "y" ]; then
-	echo "SparseArrays.jl CSC"
-	result="${folder}/result_ser_csc.csv"
-	echo "nthreads  seconds" >> $result
-	printf "nthreads = 1.."
-	printf "1" >> $result
-	$julia benchmark_ser.jl csc $solver $matrix $matsize1 $matsize2 $matsize3 >> $result
-	echo
-fi
+echo "SparseArrays.jl CSC"
+result="${folder}/result_ser_csc.csv"
+echo "nthreads  seconds" >> $result
+printf "nthreads = 1.."
+printf "1" >> $result
+$julia benchmark_ser.jl csc $solver $matrix $matsize1 $matsize2 $matsize3 >> $result
+echo
+
+#######################################
+# Checks if an array contains a string.
+# Globals:
+#   None
+# Arguments:
+#   array
+#   string
+# Outputs:
+#   Returns 1 if string is in array, 0 if not.
+#######################################
+function contains() {
+    local n=$#
+    local value=${!n}
+    for ((i=1;i < $#;i++)) {
+        if [ "${!i}" == "${value}" ]; then
+            echo "y"
+            return 0
+        fi
+    }
+    echo "n"
+    return 1
+}
 
 # Benchmark multithreaded CSR MatVec from MtSpMV.jl
 if [ $(contains "${kernels[@]}" "par") == "y" ] && 
@@ -135,4 +131,4 @@ fi
 
 # Plot results
 echo "Plotting.."
-$julia plot_nthreads.jl $folder
+$julia plot_cl.jl $folder nthreads

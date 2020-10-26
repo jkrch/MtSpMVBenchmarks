@@ -9,8 +9,8 @@ using DataFrames
 using CSV
 using DelimitedFiles
 using Glob
-using Suppressor
 
+# Load plot settings
 include("plotsettings.jl")
 
 
@@ -63,10 +63,17 @@ function plot_runtime(path::String)
     linestyles = [:solid, :dash, :dot, :dashdot, :dashdotdot]
 
     # Create runtime plot
-    plot(title="spmv", 
-    	 xlabel="Matrix size", 
-    	 ylabel="Runtime (seconds)", 
-    	 legend=:outertopright) 
+    plot(
+    	title="spmv", 
+		xlabel="Matrix size", 
+		ylabel="Runtime (seconds)", 
+    	size=plotsettings["size"],
+    	dpi=plotsettings["dpi"],
+    	titlefont=plotsettings["titlefont"],
+    	tickfont=plotsettings["tickfont"],
+    	legendfont=plotsettings["legendfont"],
+    	legend=plotsettings["legend"]
+    )
 
     # Add MtSpMV.jl CSR to plot
     label = ("MtSpMV.jl CSR")
@@ -109,54 +116,5 @@ function plot_runtime(path::String)
     end
 
 end
-  
-    
-#     # Plot speedups
-        
-#     # MtSpMV.jl CSR
-#     speedup1 = zeros(length(time3))
-#     speedup2 = zeros(length(time3))
-#     for i = 1:length(time1)
-#         speedup1[i] = time1[i] / time3[i]
-#         speedup2[i] = time2[i] / time3[i]
-#     end
-#     plot(msize3, speedup1, title="SpMV", dpi=300, legend=:topleft, 
-#          legendfontsize=6, label="MtSpMV.jl CSR over SparseArrays.jl CSR", 
-#          xlabel="Number of threads", ylabel="Parallel speedup") 
-#     plot!(msize3, speedup2, linestyle=:dash, 
-#           label="MtSpMV.jl CSR over SparseArrays.jl CSC")
-#     png(plotA)
-
-#     # MKLSparse.jl CSR
-#     if isfile(result4_csv)
-#         speedup3 = zeros(length(time4))
-#         speedup4 = zeros(length(time4))
-#         for i = 1:length(time1)
-#             speedup3[i] = time1[i] / time4[i]
-#             speedup4[i] = time2[i] / time4[i]
-#         end
-#         plot!(msize4, speedup3, linestyle=:dot, 
-#               label="MKLSparse.jl CSR over SparseArrays.jl CSR")
-#         plot!(msize4, speedup4, linestyle=:dashdot, 
-#               label="MKLSparse.jl CSR over SparseArrays.jl CSC")   
-#         png(plotB)
-#     end
-        
-#     # MKLSparse.jl CSC
-#     if isfile(result5_csv)
-#         speedup5 = zeros(length(time5))
-#         for i = 1:length(time1)
-#             speedup5[i] = time2[i] / time3[i]
-#         end
-#         plot!(msize5, speedup5, linestyle=:dashdotdot,
-#               label="MKLSparse.jl CSC over SparseArrays.jl CSC", )
-#         png(plotC)     
-#     end
-
-                                              
-
-# Run from command line
-# ARGS[1]: path to results
-@suppress plot_runtime(ARGS[1])
 
 end # module

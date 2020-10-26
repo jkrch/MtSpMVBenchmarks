@@ -3,10 +3,15 @@
 # Backend
 gr()
 
-# Plot size 
-font1 = Plots.font("sans-serif", pointsize=12)
-font2 = Plots.font("sans-serif", pointsize=8)
-default(titlefont=font1)
-default(guidefont=font2, tickfont=font2, legendfont=font2, legendfontsize=font2)
-default(size=(800,600))
-default(dpi=200)
+# 
+font1 = Plots.font("sans-serif", pointsize=14)
+font2 = Plots.font("sans-serif", pointsize=10)
+plotsettings = Dict(
+	"size" => (1000,600), 
+	"dpi" => 200,
+    "titlefont" => font1,
+    "tickfont" => font2,
+    "legendfont" => font2,
+    #"legendfontsize" => 10,
+    "legend" => :outertopright
+)
